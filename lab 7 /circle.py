@@ -2,10 +2,7 @@ import pygame
 
 pygame.init()
 
-WIDTH, HEIGHT = 500, 500  
-BALL_RADIUS = 25
-BALL_COLOR = (255, 0, 0)  
-BG_COLOR = (255, 255, 255)  
+WIDTH, HEIGHT = 500, 500   
 STEP = 20 
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -23,17 +20,17 @@ while running:
             running = False
     
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and ball_x - BALL_RADIUS - STEP >= 0:
+    if keys[pygame.K_LEFT] and ball_x - 25 - STEP >= 0:
         ball_x -= STEP
-    if keys[pygame.K_RIGHT] and ball_x + BALL_RADIUS + STEP <= WIDTH:
+    if keys[pygame.K_RIGHT] and ball_x + 25 + STEP <= WIDTH:
         ball_x += STEP
-    if keys[pygame.K_UP] and ball_y - BALL_RADIUS - STEP >= 0:
+    if keys[pygame.K_UP] and ball_y - 25 - STEP >= 0:
         ball_y -= STEP
-    if keys[pygame.K_DOWN] and ball_y + BALL_RADIUS + STEP <= HEIGHT:
+    if keys[pygame.K_DOWN] and ball_y + 25 + STEP <= HEIGHT:
         ball_y += STEP
     
-    screen.fill(BG_COLOR)
-    pygame.draw.circle(screen, BALL_COLOR, (ball_x, ball_y), BALL_RADIUS)
+    screen.fill((255, 255, 255))
+    pygame.draw.circle(screen, (255, 0, 0)  , (ball_x, ball_y), 25)
     pygame.display.update()
     
 pygame.quit()
