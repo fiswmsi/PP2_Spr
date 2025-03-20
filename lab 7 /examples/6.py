@@ -1,0 +1,36 @@
+import pygame
+import os
+
+_image_library = {}
+def get_image(path):
+        global _image_library
+        image = _image_library.get(path)
+        if image == None:
+                canonicalized_path = path.replace('/', os.sep).replace('\\', os.sep)
+                image = pygame.image.load(canonicalized_path)
+                _image_library[path] = image
+        return image
+
+pygame.init()
+screen = pygame.display.set_mode((2000, 2000))
+done = False
+clock = pygame.time.Clock()
+
+pygame.mixer.init()
+
+pygame.mixer.music.load('/Users/sarsenbaisarbinaz/Desktop/pp2/githowto/repositories/w3school/lab 7 /music/Rihanna - S&M (Karaoke Version).mp3')
+pygame.mixer.music.play(0)
+
+while not done:
+        for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                        done = True
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                        pygame.mixer.music.stop()
+        
+        screen.fill((255, 255, 255))
+        
+        screen.blit(get_image('/Users/sarsenbaisarbinaz/Desktop/pp2/githowto/repositories/w3school/lab 7 /images/mickeyclock.jpeg'), (20, 20))
+        
+        pygame.display.flip()
+        clock.tick(60)
