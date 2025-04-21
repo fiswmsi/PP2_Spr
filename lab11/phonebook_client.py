@@ -35,7 +35,13 @@ def insert_many():
         name = input("Name: ")
         phone = input("Phone: ")
         if phone.isdigit() and 10 <= len(phone) <= 15:
-            insert_or_update()
+            cur.execute("SELECT * FROM phonebook WHERE username = %s", (name,))
+            if cur.fetchone():
+                cur.execute("UPDATE phonebook SET phone = %s WHERE username = %s", (phone, name))
+            else:
+                cur.execute("INSERT INTO phonebook (username, phone) VALUES (%s, %s)", (name, phone))
+            conn.commit()
+            print("Saved.")
         else:
             print(f"Invalid phone for {name}: {phone}")
 
