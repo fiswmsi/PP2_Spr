@@ -1,75 +1,82 @@
 import psycopg2
-import ast
 
 conn = psycopg2.connect(
-    database="postgres",                   
-    user="sarsenbaisarbinaz",             
+    database="postgres",
+    user="sarsenbaisarbinaz",
     host="localhost",
     port="5432"
 )
 cur = conn.cursor()
 
-# Search pattern
-def search():
-    pattern = input("Search (name or phone): ")
-    cur.execute("SELECT * FROM phonebook WHERE username ILIKE %s OR phone ILIKE %s", (f"%{pattern}%", f"%{pattern}%"))
-    for row in cur.fetchall():
+def search_by_pattern():
+    pattern = input("Enter search pattern (name or phone): ")
+    cur.execute("SELECT * FROM search_pattern(%s)", (pattern,))
+    results = cur.fetchall()
+    for row in results:
         print(row)
 
-# Insert or update user
-def insert_or_update():
-    name = input("Enter name: ")
-    phone = input("Enter phone: ")
-    cur.execute("SELECT * FROM phonebook WHERE username = %s", (name,))
-    if cur.fetchone():
-        cur.execute("UPDATE phonebook SET phone = %s WHERE username = %s", (phone, name))
-    else:
-        cur.execute("INSERT INTO phonebook (username, phone) VALUES (%s, %s)", (name, phone))
+def insert_or_update_user():
+    name = input("Enter username: ")
+    phone = input("Enter phone number: ")
+    cur.execute("CALL insert_or_update_user(%s, %s)", (name, phone))
     conn.commit()
-    print("Saved.")
 
-# Insert many users
-def insert_many():
-    n = int(input("How many users: "))
+def insert_many_users():
+    names = []
+    phones = []
+    n = int(input("How many users do you want to insert? "))
     for _ in range(n):
         name = input("Name: ")
         phone = input("Phone: ")
-        if phone.isdigit() and 10 <= len(phone) <= 15:
-            cur.execute("SELECT * FROM phonebook WHERE username = %s", (name,))
-            if cur.fetchone():
-                cur.execute("UPDATE phonebook SET phone = %s WHERE username = %s", (phone, name))
-            else:
-                cur.execute("INSERT INTO phonebook (username, phone) VALUES (%s, %s)", (name, phone))
-            conn.commit()
-            print("Saved.")
-        else:
-            print(f"Invalid phone for {name}: {phone}")
+        names.append(name)
+        phones.append(phone)
+    cur.execute("CALL insert_many_users(%s, %s)", (names, phones))
+    conn.commit()
+    print("Users inserted (invalid ones are skipped).")
 
-# Paginated query
-def paginate():
-    limit = int(input("Limit: "))
-    offset = int(input("Offset: "))
-    cur.execute("SELECT * FROM phonebook ORDER BY id LIMIT %s OFFSET %s", (limit, offset))
-    for row in cur.fetchall():
+def paginate_users():
+    limit = int(input("Enter number of records to display: "))
+    offset = int(input("Enter offset: "))
+    cur.execute("SELECT * FROM paginate_users(%s, %s)", (limit, offset))
+    rows = cur.fetchall()
+    for row in rows:
         print(row)
 
-# Delete user
-def delete():
-    key = input("Delete by name or phone: ")
-    cur.execute("DELETE FROM phonebook WHERE username = %s OR phone = %s", (key, key))
+def delete_user():
+    value = input("Enter username or phone to delete: ").strip()
+    cur.execute("CALL delete_user(%s::TEXT)", (value,))
     conn.commit()
-    print("Deleted.")
+    print("User deleted.")
 
-# Menu
-while True:
-    print("\n1. Search\n2. Insert/Update\n3. Insert Many\n4. Paginate\n5. Delete\n6. Exit")
-    c = input("Choice: ")
-    if c == '1': search()
-    elif c == '2': insert_or_update()
-    elif c == '3': insert_many()
-    elif c == '4': paginate()
-    elif c == '5': delete()
-    elif c == '6': break
+def main():
+    while True:
+        print("\n=== PhoneBook Menu ===")
+        print("1. Search by pattern")
+        print("2. Insert or update user")
+        print("3. Insert many users")
+        print("4. Show paginated users")
+        print("5. Delete user")
+        print("6. Exit")
 
-cur.close()
-conn.close()
+        choice = input("Choose an option: ")
+
+        if choice == '1':
+            search_by_pattern()
+        elif choice == '2':
+            insert_or_update_user()
+        elif choice == '3':
+            insert_many_users()
+        elif choice == '4':
+            paginate_users()
+        elif choice == '5':
+            delete_user()
+        elif choice == '6':
+            break
+        else:
+            print("Invalid option. Try again.")
+
+    cur.close()
+    conn.close()
+
+if __name__ == "__main__":
+    main()
